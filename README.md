@@ -2,11 +2,17 @@
 Webapp to deliver human intuition challenge as well as collect data that can be used to train a neural network
 
 ## Start Up NodeJS Web App
+
+```bash
 cd server
+```
 
+```bash
 node app
+```
 
-http://localhost:3000/
+Navigate to: http://localhost:3000/
+
 
 ### Switch View Modes in Webapp
 
