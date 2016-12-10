@@ -1,20 +1,20 @@
-# tensor-flow-presentation
-Quick Intro to TensorFlow and Machine Learning
+#Human Intuition Challenge
+Webapp to deliver human intuition challenge as well as collect data that can be used to train a neural network
 
-# View Slideshow
-Open "slideshow/index.html" in a browser
-
-# Start Up Tensor Board
-tensorboard --logdir=logs
-
-# Start Up NodeJS Web App
-cd tensorFlowDemo/server/
+## Start Up NodeJS Web App
+cd server
 node app
+http://localhost:3000/
 
-# Run Machine Learning
+## Run Machine Learning
 cd tensorFlowDemo/
 python hidden_layers_one.py
 - or -
 python hidden_layers_two.py
+- or -
+python hidden_layers_mixed.py
+
+## Start Up Tensor Board
+tensorboard --logdir=logs
 
 
