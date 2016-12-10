@@ -3,7 +3,9 @@ Webapp to deliver human intuition challenge as well as collect data that can be 
 
 ## Start Up NodeJS Web App
 cd server
+
 node app
+
 http://localhost:3000/
 
 ## Run Machine Learning
