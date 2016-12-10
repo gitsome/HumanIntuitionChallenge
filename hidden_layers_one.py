@@ -1,3 +1,5 @@
+import os
+
 import tensorflow.python.platform
 
 import numpy as np
@@ -124,7 +126,10 @@ def main(argv=None):
             plots[i].invert_yaxis()
             plots[i].pcolor(sess.run(w_hidden)[:,i].reshape(7,26))
 
-        fig.savefig('weights.png')
+        if not os.path.exists('images'):
+            os.makedirs('images')
+
+        fig.savefig('images/weights.png')
 
         print "Train Accuracy:", accuracy.eval(feed_dict={x: data, y_: labels})
         print "Test Accuracy:", accuracy.eval(feed_dict={x: testData, y_: testLabels})
