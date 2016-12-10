@@ -7,11 +7,9 @@ node app
 http://localhost:3000/
 
 ## Run Machine Learning
-python hidden_layers_one.py
-- or -
-python hidden_layers_two.py
-- or -
-python hidden_layers_mixed.py
+* python hidden_layers_one.py
+* python hidden_layers_two.py
+* python hidden_layers_mixed.py
 
 ## Start Up Tensor Board
 tensorboard --logdir=logs
