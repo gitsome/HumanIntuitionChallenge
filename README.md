@@ -7,7 +7,6 @@ node app
 http://localhost:3000/
 
 ## Run Machine Learning
-cd tensorFlowDemo/
 python hidden_layers_one.py
 - or -
 python hidden_layers_two.py
