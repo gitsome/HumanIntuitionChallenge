@@ -3,8 +3,14 @@ Webapp to deliver human intuition challenge as well as collect data that can be 
 
 ## Start Up NodeJS Web App
 
+You will need to have NodeJS and NPM installed (NPM comes with newer versions of NodeJS)
+
 ```bash
 cd server
+```
+
+```bash
+npm install
 ```
 
 ```bash
