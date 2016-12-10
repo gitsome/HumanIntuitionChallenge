@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^2.9.25",
+    "body-parser": "^1.13.3",
+    "colors": "*",
+    "errorhandler": "^1.4.2",
+    "express": "^4.13.3",
+    "express-session": "^1.14.2",
+    "grunt-contrib-less": "*",
+    "grunt-contrib-watch": "*",
+    "hjs": "*",
+    "jsonfile": "^2.4.0",
+    "method-override": "^2.3.5",
+    "node.extend": "*",
+    "request": "*",
+    "underscore": "^1.8.1"
+  }
+}
