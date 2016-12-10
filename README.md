@@ -1,6 +1,17 @@
 #Human Intuition Challenge
 Webapp to deliver human intuition challenge as well as collect data that can be used to train a neural network
 
+You can view the current article that discuss this challenge here:
+
+[More Intuitive than Most? Want to Challenge my Machine?](https://medium.com/p/82c3faed97da)
+
+You can view a discussion about the creation and training of the neural network code here:
+
+[How to Design Neural Nets for the Human Intuition Challenge](https://medium.com/p/c380ce5c595c)
+
+Any feedback or extensions of this work is greatly appreaciated!
+
+
 ## Start Up NodeJS Web App
 
 You will need to have NodeJS and NPM installed (NPM comes with newer versions of NodeJS)
@@ -74,7 +85,7 @@ Then change the "DATA_POINTS_PER_SCHEME" variable in that file.
 
 This code was written using Python 2.7.12. You will need to have that installed as well as the version of TensorFlow that supports that version of Python.
 
-There are several neural networks that can be trained using the data exported from the previous steps above
+There are several neural networks that can be trained using the data exported from the previous steps above.
 
 ### Single Hidden Layer
 
