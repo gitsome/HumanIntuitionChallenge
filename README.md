@@ -37,18 +37,18 @@ http://localhost:3000/services/mode/view
 You should see a json response of success and then you can navigate back to the homepage
 
 
-### Restoring the Default Schemas
+### Restoring the Default Schemes
 
-Feel free to play around with the schemas, add more, modify the transformations, go nuts!
+Feel free to play around with the schemes, add more, modify the transformations, go nuts!
 
-If you want to restore the schemas to the default A and B schemas used in the Human Intuition Challenge navigate to this endpoint:
+If you want to restore the schemes to the default A and B schemes used in the Human Intuition Challenge navigate to this endpoint:
 
 http://localhost:3000/services/setdefaultschemes
 
 
 ### Generating Data For Machine Learning
 
-Once you have the rule sets setup to generate random strings for each schema, you can generate as much data as you want for machine learning.
+Once you have the rule sets setup to generate random strings for each scheme, you can generate as much data as you want for machine learning.
 
 First, make sure you are in "edit" mode. This will expose a "generate data" button on the homepage (see instructions above to get the webapp into edit mode)
 
