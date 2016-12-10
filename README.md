@@ -48,6 +48,14 @@ http://localhost:3000/services/mode/view
 You should see a json response of success and then you can navigate back to the homepage
 
 
+### Collecting Human Results
+
+Each time someone completes the online intuition test, it will store the results summary in memory on the server. You can retrieve the json array of results by hitting this endpoint:
+
+http://localhost:3000/services/results
+
+
+
 ### Restoring the Default Schemes
 
 Feel free to play around with the schemes, add more, modify the transformations, go nuts!
@@ -66,10 +74,6 @@ First, make sure you are in "edit" mode. This will expose a "generate data" butt
 Simply click the "Generate Data" button and the server will spit out a file in the 'server/exports/' directory.
 
 This file is the file the TensorFlow code is looking for when attempting to train.
-
-You can also view the generated data via a rest endpoint. Navigate here to view the json data:
-
-http://localhost:3000/services/results
 
 
 ### Changing the amount of data generated for machine learning
