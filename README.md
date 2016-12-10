@@ -72,6 +72,8 @@ Then change the "DATA_POINTS_PER_SCHEME" variable in that file.
 
 ## Run Machine Learning
 
+This code was written using Python 2.7.12. You will need to have that installed as well as the version of TensorFlow that supports that version of Python.
+
 There are several neural networks that can be trained using the data exported from the previous steps above
 
 ### Single Hidden Layer
