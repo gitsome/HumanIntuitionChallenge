@@ -111,12 +111,12 @@ def main(argv=None):
             writer.add_summary(summary, step)
 
 
-        fig, plots = plt.subplots(2)
+        fig, plots = plt.subplots(2,figsize=(10,8))
 
         plt.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
 
-        plots[0].set_title("Schema A")
-        plots[1].set_title("Schema B")
+        plots[0].set_title("Scheme A")
+        plots[1].set_title("Scheme B")
 
         plt.subplots_adjust(hspace=0.5)
 
