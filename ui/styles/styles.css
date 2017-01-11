@@ -306,6 +306,7 @@ ml-scheme-transform {
 }
 ml-scheme-transform textarea {
     width: 100%;
+    font-family: monospace;
 }
 
 .ml-edit-scheme-refresh {

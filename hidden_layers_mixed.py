@@ -1,9 +1,13 @@
+import os
+
 import numpy as np
 import random
 
 import tensorflow.python.platform
 import tensorflow as tf
-import matplotlib.pyplot as plt
+
+import matplotlib.pyplot as matplotlib
+import matplotlib.cm as cm
 
 from humanIntuitionUtils import graphHelpers
 from humanIntuitionUtils import extract_data
@@ -67,40 +71,40 @@ def main(argv=None):
     data_node = tf.constant(data)
 
     # The output biases are used for both tracks
-    output_biases = init_weights('bOut', [1, num_labels], 'zeros')
+    output_biases = init_weights('output_biases', [1, num_labels], 'zeros')
 
 
-    # =========== SINGLE HIDDEN LAYER TRACK ============
+    # =========== MULTI LAYER CHANNEL 1 ============
 
-    single_weights = init_weights('single_weights', [num_features, num_labels], 'uniform')
+    c1_layer1_weights = init_weights('c1_layer1_weights', [num_features, num_features], 'uniform')
+    c1_layer1_biases = init_weights('c1_layer1_biases', [1, num_features], 'zeros')
 
-    # NOTE: Not currently using relu after
-    hidden_single = tf.add(tf.matmul(x, single_weights), output_biases);
-
-
-    # =========== MULTI LAYER TRACK ============
-
-    multi_weights = {
-        'h1': init_weights('w1', [num_features, num_features], 'uniform'),
-        'h2': init_weights('w2', [num_features, num_labels], 'uniform')
-    }
-    multi_biases = {
-        'b1': init_weights('b1', [1, num_features], 'zeros'),
-        'b2': output_biases
-    }
+    c1_layer2_weights = init_weights('c1_layer2_weights', [num_features, num_labels], 'uniform')
+    c1_layer2_biases = output_biases
 
     # Hidden layer 1 with RELU activation
-    multi_layer_1 = tf.add(tf.matmul(x, multi_weights['h1']), multi_biases['b1'])
-    multi_layer_1 = tf.nn.relu(multi_layer_1)
+    c1_layer1 = tf.add(tf.matmul(x, c1_layer1_weights), c1_layer1_biases)
+    c1_layer1 = tf.nn.relu(c1_layer1)
 
     # Hidden layer 2 with RELU activation
-    multi_layer_2 = tf.add(tf.matmul(multi_layer_1, multi_weights['h2']), multi_biases['b2'])
-    multi_layer_2 = tf.nn.relu(multi_layer_2)
+    c1_layer2 = tf.add(tf.matmul(c1_layer1, c1_layer2_weights), c1_layer2_biases)
+    c1_layer2 = tf.nn.relu(c1_layer2)
+
+    c1_layer2_softmax = tf.nn.softmax(c1_layer2)
+
+
+    # =========== SINGLE HIDDEN LAYER CHANNEL 2 ============
+
+    c2_layer1_weights = init_weights('c2_layer1_weights', [num_features, num_labels], 'uniform')
+
+    c2_layer1 = tf.add(tf.matmul(x, c2_layer1_weights), output_biases);
+
+    c2_layer1_softmax = tf.nn.softmax(c2_layer1)
 
 
     # =========== MERGE MULTIPLE TRACKS ============
 
-    hidden_combined = tf.add(hidden_single, multi_layer_2)
+    hidden_combined = tf.add(c1_layer2, c2_layer1)
 
     # The output layer.
     y = tf.nn.softmax(hidden_combined);
@@ -114,11 +118,21 @@ def main(argv=None):
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
 
-    # =========== SETUP AND INITIALIZE SUMMARY ============
+    # =========== INITIALIZATION SETUP ============
 
+    # Summary
     tf.summary.scalar('accurarcy', accuracy)
-
     summary_op = tf.summary.merge_all()
+
+    # Input Importance Measurements
+    outputFilterMatrix = tf.constant([[1.0, 1.0]])
+
+    predImportanceC1 = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(c1_layer2_weights)))
+    inputImportanceC1 = tf.matmul(predImportanceC1, tf.abs(tf.transpose(c1_layer1_weights)))
+
+    inputImportanceC2 = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(c2_layer1_weights)))
+
+    averageImportance = tf.add(tf.mul(inputImportanceC1, 100.0), inputImportanceC2)
 
 
     # =========== RUN THE SESSION ============
@@ -143,6 +157,32 @@ def main(argv=None):
             _  = sess.run([train_step], feed_dict={x: batch_data, y_: batch_labels})
             summary = sess.run(summary_op, feed_dict={x: testData, y_: testLabels})
             writer.add_summary(summary, step)
+
+        font = {'size' : 22}
+        matplotlib.rc('font', **font)
+
+        fig, plots = matplotlib.subplots(3, figsize=(20, 24))
+
+        matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
+        matplotlib.subplots_adjust(hspace=0.5)
+
+        plots[0].set_title("Multi Channel Hidden Layers : Input Importance Channel 1", y=1.06)
+        plots[0].invert_yaxis();
+        plots[0].pcolor(sess.run(inputImportanceC1).reshape(7,26), cmap=cm.gray)
+
+        plots[1].set_title("Multi Channel Hidden Layers : Input Importance Channel 2", y=1.06)
+        plots[1].invert_yaxis();
+        plots[1].pcolor(sess.run(inputImportanceC2).reshape(7,26), cmap=cm.gray)
+
+        plots[2].set_title("Multi Channel Hidden Layers : Input Importance Averaged", y=1.06)
+        plots[2].invert_yaxis();
+        plots[2].pcolor(sess.run(averageImportance).reshape(7,26), cmap=cm.gray)
+
+        if not os.path.exists('images'):
+            os.makedirs('images')
+
+        fig.savefig('images/weights_layers_mixed.png')
+
 
         print "Train Accuracy:", accuracy.eval(feed_dict={x: data, y_: labels})
         print "Test Accuracy:", accuracy.eval(feed_dict={x: testData, y_: testLabels})

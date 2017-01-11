@@ -4,7 +4,8 @@ import tensorflow.python.platform
 
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as matplotlib
+import matplotlib.cm as cm
 
 import random
 
@@ -71,7 +72,7 @@ def main(argv=None):
     b_hidden = init_weights('b_hidden', [1, num_labels], 'zeros')
 
     # The hidden layer.
-    hidden = tf.matmul(x,w_hidden) + b_hidden;
+    hidden = tf.matmul(x, w_hidden) + b_hidden;
 
     # The output layer.
     y = tf.nn.softmax(hidden);
@@ -86,8 +87,13 @@ def main(argv=None):
 
     tf.summary.scalar('accurarcy', accuracy)
 
-    #summary
+    # summary
     summary_op = tf.summary.merge_all()
+
+    # Input Importance Measurement
+    outputFilterMatrix = tf.constant([[1.0, 1.0]])
+    inputImportance = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(w_hidden)))
+
 
     # Create a local session to run this computation.
     with tf.Session() as sess:
@@ -111,20 +117,25 @@ def main(argv=None):
             writer.add_summary(summary, step)
 
 
-        fig, plots = plt.subplots(2,figsize=(10,8))
+        font = {'size' : 22}
+        matplotlib.rc('font', **font)
 
-        plt.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
+        fig, plots = matplotlib.subplots(3, figsize=(20, 24))
 
-        plots[0].set_title("Scheme A")
-        plots[1].set_title("Scheme B")
+        matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
+        matplotlib.subplots_adjust(hspace=0.5)
 
-        plt.subplots_adjust(hspace=0.5)
+        plots[0].set_title("Single Hidden Layer : Scheme A weights", y=1.06)
+        plots[0].invert_yaxis()
+        plots[0].pcolor(sess.run(w_hidden)[:,0].reshape(7,26))
 
-        for i in range(2):
-            # NOTE [:,i] is all rows in column i
-            # This would be getting all weights from hidden layer to the ith label
-            plots[i].invert_yaxis()
-            plots[i].pcolor(sess.run(w_hidden)[:,i].reshape(7,26))
+        plots[1].set_title("Single Hidden Layer : Scheme B weights", y=1.06)
+        plots[1].invert_yaxis()
+        plots[1].pcolor(sess.run(w_hidden)[:,1].reshape(7,26))
+
+        plots[2].set_title("Single Hidden Layer : Input Importance", y=1.06)
+        plots[2].invert_yaxis()
+        plots[2].pcolor(sess.run(inputImportance).reshape(7,26), cmap=cm.gray)
 
         if not os.path.exists('images'):
             os.makedirs('images')

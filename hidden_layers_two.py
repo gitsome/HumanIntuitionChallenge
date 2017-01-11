@@ -1,8 +1,12 @@
+import os
+
 import tensorflow.python.platform
 
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
+
+import matplotlib.pyplot as matplotlib
+import matplotlib.cm as cm
 
 import random
 
@@ -10,7 +14,6 @@ from humanIntuitionUtils import graphHelpers
 from humanIntuitionUtils import extract_data
 from humanIntuitionUtils import variable_summaries
 from humanIntuitionUtils import init_weights
-from humanIntuitionUtils import multilayer_perceptron
 
 # Original from https://github.com/jasonbaldridge/try-tf/
 
@@ -59,37 +62,38 @@ def main(argv=None):
     hidden_layer_size_1 = num_features
     hidden_layer_size_2 = num_features
 
-    # This is where training samples and labels are fed to the graph.
-    # These placeholder nodes will be fed a batch of training data at each
-    # training step using the {feed_dict} argument to the Run() call below.
-    x = tf.placeholder("float", shape=[None, num_features], name="x")
-    y_ = tf.placeholder("float", shape=[None, num_labels], name="y")
-
     # For the test data, hold the entire dataset in one constant node.
     data_node = tf.constant(data)
 
-    # Define and initialize the network.
 
-    # tf Graph input
+    # ============ Define and initialize the network.
+
+    # This is where training samples and labels are fed to the graph.
+    # These placeholder nodes will be fed a batch of training data at each
+    # training step using the {feed_dict} argument to the Run() call below.
     x = tf.placeholder("float", [None, num_features])
     y = tf.placeholder("float", [None, num_labels])
 
-    # Store layers weight & bias
-    weights = {
-        'h1': init_weights('w1', [num_features, hidden_layer_size_1], 'uniform'),
-        'h2': init_weights('w2', [hidden_layer_size_1, hidden_layer_size_2], 'uniform'),
-        'out': init_weights('wOut', [hidden_layer_size_2, num_labels], 'uniform')
-    }
-    biases = {
-        'b1': init_weights('b1', [1, hidden_layer_size_1], 'zeros'),
-        'b2': init_weights('b2', [1, hidden_layer_size_2], 'zeros'),
-        'out': init_weights('bOut', [1, num_labels], 'zeros')
-    }
+    # Hidden layer with RELU activation
+    layer_1_weights = init_weights('layer_1_weights', [num_features, hidden_layer_size_1], 'uniform')
+    layer_1_biases = init_weights('layer_1_biases', [1, hidden_layer_size_1], 'zeros')
+    layer_1 = tf.add(tf.matmul(x, layer_1_weights), layer_1_biases)
+    layer_1 = tf.nn.relu(layer_1)
 
-    # Construct model
-    pred = multilayer_perceptron(x, weights, biases)
+    # Hidden layer with RELU activation
+    layer_2_weights = init_weights('layer_2_weights', [hidden_layer_size_1, hidden_layer_size_2], 'uniform')
+    layer_2_biases = init_weights('layer_2_biases', [1, hidden_layer_size_2], 'zeros')
+    layer_2 = tf.add(tf.matmul(layer_1, layer_2_weights), layer_2_biases)
+    layer_2 = tf.nn.relu(layer_2)
 
-    # Define loss and optimizer
+    # Output layer with linear activation
+    pred_weights = init_weights('pred_weights', [hidden_layer_size_2, num_labels], 'uniform')
+    pred_biases = init_weights('pred_biases', [1, num_labels], 'zeros')
+    pred = tf.matmul(layer_2, pred_weights) + pred_biases
+
+
+    # ============ Define loss and optimizer
+
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
     optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(cost)
 
@@ -98,11 +102,18 @@ def main(argv=None):
     # Calculate accuracy
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
-    #summary
+    # summary
     tf.summary.scalar('accurarcy', accuracy)
     summary_op = tf.summary.merge_all()
 
-    # Create a local session to run this computation.
+    # Input Importance Measurement
+    outputFilterMatrix = tf.constant([[1.0, 1.0]])
+    predImportance = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(pred_weights)))
+    layer2Importance = tf.matmul(predImportance, tf.abs(tf.transpose(layer_2_weights)))
+    inputImportance = tf.matmul(layer2Importance, tf.abs(tf.transpose(layer_1_weights)))
+
+    # ============ Create a local session to run this computation.
+
     with tf.Session() as sess:
         # Run all the initializers to prepare the trainable parameters.
         tf.global_variables_initializer().run()
@@ -124,20 +135,24 @@ def main(argv=None):
             writer.add_summary(summary, step)
 
 
-        fig, plots = plt.subplots(1)
+        font = {'size' : 22}
+        matplotlib.rc('font', **font)
 
-        plt.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
+        fig, plots = matplotlib.subplots(1, figsize=(20, 6.5))
 
-        plots.set_title("Input Weights")
+        matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
+        matplotlib.subplots_adjust(hspace=0.5, top=0.85)
 
-        plt.subplots_adjust(hspace=0.5)
+        plots.set_title("Multiple Hidden Layers : Input Importance", y=1.06)
+        plots.invert_yaxis();
+        plots.pcolor(sess.run(inputImportance).reshape(7,26), cmap=cm.gray)
 
-        plots.invert_yaxis()
-        plots.pcolor(sess.run(weights['h1'])[:,1].reshape(7,26))
+        if not os.path.exists('images'):
+            os.makedirs('images')
 
-        fig.savefig('weights.png')
+        fig.savefig('images/weights_layers_two.png')
 
-
+        print "Train Accuracy:", accuracy.eval({x: data, y: labels})
         print "Accuracy:", accuracy.eval({x: testData, y: testLabels})
 
 
