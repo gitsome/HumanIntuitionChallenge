@@ -18,7 +18,7 @@
 
             // should be set to the average number of questions it took a human to do for comparison
             // (NOTE) multiply by 2 so half can be used for testing
-            var DATA_POINTS_PER_SCHEME = 600;
+            var DATA_POINTS_PER_SCHEME = 2500;
 
             var fillArray = function (len, val) {
                 var rv = new Array(len);

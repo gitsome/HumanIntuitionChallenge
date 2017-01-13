@@ -90,11 +90,6 @@ def main(argv=None):
     # summary
     summary_op = tf.summary.merge_all()
 
-    # Input Importance Measurement
-    outputFilterMatrix = tf.constant([[1.0, 1.0]])
-    inputImportance = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(w_hidden)))
-
-
     # Create a local session to run this computation.
     with tf.Session() as sess:
 
@@ -120,7 +115,7 @@ def main(argv=None):
         font = {'size' : 22}
         matplotlib.rc('font', **font)
 
-        fig, plots = matplotlib.subplots(3, figsize=(20, 24))
+        fig, plots = matplotlib.subplots(2, figsize=(20, 12))
 
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5)
@@ -132,10 +127,6 @@ def main(argv=None):
         plots[1].set_title("Single Hidden Layer : Scheme B weights", y=1.06)
         plots[1].invert_yaxis()
         plots[1].pcolor(sess.run(w_hidden)[:,1].reshape(7,26))
-
-        plots[2].set_title("Single Hidden Layer : Input Importance", y=1.06)
-        plots[2].invert_yaxis()
-        plots[2].pcolor(sess.run(inputImportance).reshape(7,26), cmap=cm.gray)
 
         if not os.path.exists('images'):
             os.makedirs('images')

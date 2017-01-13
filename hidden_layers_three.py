@@ -61,6 +61,7 @@ def main(argv=None):
     # Get the size of layer one.
     hidden_layer_size_1 = num_features
     hidden_layer_size_2 = num_features
+    hidden_layer_size_3 = num_features
 
     # For the test data, hold the entire dataset in one constant node.
     data_node = tf.constant(data)
@@ -86,10 +87,16 @@ def main(argv=None):
     layer_2 = tf.add(tf.matmul(layer_1, layer_2_weights), layer_2_biases)
     layer_2 = tf.nn.relu(layer_2)
 
+    # Hidden layer with RELU activation
+    layer_3_weights = init_weights('layer_3_weights', [hidden_layer_size_2, hidden_layer_size_3], 'uniform')
+    layer_3_biases = init_weights('layer_3_biases', [1, hidden_layer_size_3], 'zeros')
+    layer_3 = tf.add(tf.matmul(layer_2, layer_3_weights), layer_3_biases)
+    layer_3 = tf.nn.relu(layer_3)
+
     # Output layer with linear activation
-    pred_weights = init_weights('pred_weights', [hidden_layer_size_2, num_labels], 'uniform')
+    pred_weights = init_weights('pred_weights', [hidden_layer_size_3, num_labels], 'uniform')
     pred_biases = init_weights('pred_biases', [1, num_labels], 'zeros')
-    pred = tf.add(tf.matmul(layer_2, pred_weights), pred_biases)
+    pred = tf.add(tf.matmul(layer_3, pred_weights), pred_biases)
 
 
     # ============ Define loss and optimizer
@@ -111,7 +118,10 @@ def main(argv=None):
     A_predImportance = tf.matmul(A_outputFilterMatrix, tf.transpose(pred_weights))
     A_predImportance_avg = tf.scalar_mul(1 / tf.reduce_sum(A_predImportance), A_predImportance)
 
-    A_layer2Importance = tf.matmul(A_predImportance_avg, tf.transpose(layer_2_weights))
+    A_layer3Importance = tf.matmul(A_predImportance_avg, tf.transpose(layer_3_weights))
+    A_layer3Importance_avg = tf.scalar_mul(1 / tf.reduce_sum(A_layer3Importance), A_layer3Importance)
+
+    A_layer2Importance = tf.matmul(A_layer3Importance_avg, tf.transpose(layer_2_weights))
     A_layer2Importance_avg = tf.scalar_mul(1 / tf.reduce_sum(A_layer2Importance), A_layer2Importance)
 
     A_inputImportance = tf.matmul(A_layer2Importance_avg, tf.transpose(layer_1_weights))
@@ -149,14 +159,14 @@ def main(argv=None):
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5, top=0.85)
 
-        plots.set_title("Two Hidden Layers : Scheme A -> Input Importance", y=1.06)
+        plots.set_title("Three Hidden Layers : Scheme A -> Input Importance", y=1.06)
         plots.invert_yaxis();
         plots.pcolor(sess.run(A_inputImportance_avg).reshape(7,26), cmap=cm.gray)
 
         if not os.path.exists('images'):
             os.makedirs('images')
 
-        fig.savefig('images/weights_layers_two.png')
+        fig.savefig('images/weights_layers_three.png')
 
         print "Train Accuracy:", accuracy.eval({x: data, y: labels})
         print "Accuracy:", accuracy.eval({x: testData, y: testLabels})

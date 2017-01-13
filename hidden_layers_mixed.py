@@ -24,7 +24,7 @@ from humanIntuitionUtils import multilayer_perceptron
 # GLOBAL VARIABLES
 BATCH_SIZE = 1  # The number of training examples to use per training step. We use 1 to simulate an individual updating their personal neural networks one example at a time
 PERCENT_TESTING = 0.5
-LEARNING_RATE = 0.2
+LEARNING_RATE = 0.25
 RUN_INTEGER = random.randint(0,9999999)
 
 # Define the flags useable from the command line.
@@ -76,35 +76,44 @@ def main(argv=None):
 
     # =========== MULTI LAYER CHANNEL 1 ============
 
-    c1_layer1_weights = init_weights('c1_layer1_weights', [num_features, num_features], 'uniform')
-    c1_layer1_biases = init_weights('c1_layer1_biases', [1, num_features], 'zeros')
+    c1_layer1_size = num_features
+    c1_layer2_size = num_features
+    c1_layer3_size = num_features
 
-    c1_layer2_weights = init_weights('c1_layer2_weights', [num_features, num_labels], 'uniform')
-    c1_layer2_biases = output_biases
+    # Channel 1 Hidden layer 1 with RELU activation
+    c1_layer1_weights = init_weights('c1_layer1_weights', [num_features, c1_layer1_size], 'uniform')
+    c1_layer1_biases = init_weights('c1_layer1_biases', [1, c1_layer1_size], 'zeros')
 
-    # Hidden layer 1 with RELU activation
     c1_layer1 = tf.add(tf.matmul(x, c1_layer1_weights), c1_layer1_biases)
     c1_layer1 = tf.nn.relu(c1_layer1)
 
-    # Hidden layer 2 with RELU activation
+
+    # Channel 1 Hidden layer 2 with RELU activation
+    c1_layer2_weights = init_weights('c1_layer2_weights', [c1_layer1_size, c1_layer2_size], 'uniform')
+    c1_layer2_biases = init_weights('c1_layer2_biases', [1, c1_layer2_size], 'zeros')
+
     c1_layer2 = tf.add(tf.matmul(c1_layer1, c1_layer2_weights), c1_layer2_biases)
     c1_layer2 = tf.nn.relu(c1_layer2)
 
-    c1_layer2_softmax = tf.nn.softmax(c1_layer2)
+
+    # Channel 1 Hidden layer 3 with RELU activation
+    c1_layer3_weights = init_weights('c1_layer3_weights', [c1_layer2_size, num_labels], 'uniform')
+    c1_layer3_biases = output_biases
+
+    c1_layer3 = tf.add(tf.matmul(c1_layer2, c1_layer3_weights), c1_layer3_biases)
+    c1_layer3 = tf.nn.relu(c1_layer3)
 
 
     # =========== SINGLE HIDDEN LAYER CHANNEL 2 ============
 
     c2_layer1_weights = init_weights('c2_layer1_weights', [num_features, num_labels], 'uniform')
 
-    c2_layer1 = tf.add(tf.matmul(x, c2_layer1_weights), output_biases);
-
-    c2_layer1_softmax = tf.nn.softmax(c2_layer1)
+    c2_output = tf.add(tf.matmul(x, c2_layer1_weights), output_biases);
 
 
     # =========== MERGE MULTIPLE TRACKS ============
 
-    hidden_combined = tf.add(c1_layer2, c2_layer1)
+    hidden_combined = tf.add(c1_layer3, c2_output)
 
     # The output layer.
     y = tf.nn.softmax(hidden_combined);
@@ -124,15 +133,22 @@ def main(argv=None):
     tf.summary.scalar('accurarcy', accuracy)
     summary_op = tf.summary.merge_all()
 
-    # Input Importance Measurements
-    outputFilterMatrix = tf.constant([[1.0, 1.0]])
+    # Input Importance Measurements For Class A
+    A_outputFilterMatrix = tf.constant([[1.0, 0.0]])
 
-    predImportanceC1 = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(c1_layer2_weights)))
-    inputImportanceC1 = tf.matmul(predImportanceC1, tf.abs(tf.transpose(c1_layer1_weights)))
+    # Channel 1
+    A_inputImportanceC1_layer3 = tf.matmul(A_outputFilterMatrix, tf.transpose(c1_layer3_weights))
+    A_inputImportanceC1_layer3_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC1_layer3), A_inputImportanceC1_layer3)
 
-    inputImportanceC2 = tf.matmul(outputFilterMatrix, tf.abs(tf.transpose(c2_layer1_weights)))
+    A_inputImportanceC1_layer2 = tf.matmul(A_inputImportanceC1_layer3_avg, tf.transpose(c1_layer2_weights))
+    A_inputImportanceC1_layer2_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC1_layer2), A_inputImportanceC1_layer2)
 
-    averageImportance = tf.add(tf.mul(inputImportanceC1, 100.0), inputImportanceC2)
+    A_inputImportanceC1 = tf.matmul(A_inputImportanceC1_layer2_avg, tf.transpose(c1_layer1_weights))
+    A_inputImportanceC1_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC1), A_inputImportanceC1)
+
+    # Channel 2
+    A_inputImportanceC2 = tf.matmul(A_outputFilterMatrix, tf.transpose(c2_layer1_weights))
+    A_inputImportanceC2_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC2), A_inputImportanceC2)
 
 
     # =========== RUN THE SESSION ============
@@ -161,22 +177,19 @@ def main(argv=None):
         font = {'size' : 22}
         matplotlib.rc('font', **font)
 
-        fig, plots = matplotlib.subplots(3, figsize=(20, 24))
+        fig, plots = matplotlib.subplots(2, figsize=(20, 12))
 
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5)
 
-        plots[0].set_title("Multi Channel Hidden Layers : Input Importance Channel 1", y=1.06)
+        plots[0].set_title("Multi Channel NN : Scheme A -> Input Importance Channel 1", y=1.06)
         plots[0].invert_yaxis();
-        plots[0].pcolor(sess.run(inputImportanceC1).reshape(7,26), cmap=cm.gray)
+        plots[0].pcolor(sess.run(A_inputImportanceC1_avg).reshape(7,26), cmap=cm.gray)
 
-        plots[1].set_title("Multi Channel Hidden Layers : Input Importance Channel 2", y=1.06)
+        plots[1].set_title("Multi Channel NN : Scheme A -> Input Importance Channel 2", y=1.06)
         plots[1].invert_yaxis();
-        plots[1].pcolor(sess.run(inputImportanceC2).reshape(7,26), cmap=cm.gray)
+        plots[1].pcolor(sess.run(A_inputImportanceC2_avg).reshape(7,26), cmap=cm.gray)
 
-        plots[2].set_title("Multi Channel Hidden Layers : Input Importance Averaged", y=1.06)
-        plots[2].invert_yaxis();
-        plots[2].pcolor(sess.run(averageImportance).reshape(7,26), cmap=cm.gray)
 
         if not os.path.exists('images'):
             os.makedirs('images')

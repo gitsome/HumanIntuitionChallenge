@@ -90,7 +90,7 @@ def init_weights(namespace, shape, init_method='xavier', xavier_params = (None, 
     if init_method == 'zeros':
         return tf.Variable(tf.zeros(shape, dtype=tf.float32), name=namespace + '_hidden_W')
     elif init_method == 'uniform':
-        return tf.Variable(tf.random_normal(shape, stddev=0.01, dtype=tf.float32), name=namespace + '_hidden_W')
+        return tf.Variable(tf.random_normal(shape, stddev=0.01, mean=0, dtype=tf.float32), name=namespace + '_hidden_W')
     else: #xavier
         (fan_in, fan_out) = xavier_params
         low = -4*np.sqrt(6.0/(fan_in + fan_out)) # {sigmoid:4, tanh:1}
