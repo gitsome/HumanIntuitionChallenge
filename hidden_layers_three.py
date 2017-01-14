@@ -159,7 +159,7 @@ def main(argv=None):
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5, top=0.85)
 
-        plots.set_title("Three Hidden Layers : Scheme A -> Input Importance", y=1.06)
+        plots.set_title("Three Hidden Layers : Scheme C -> Input Importance", y=1.06)
         plots.invert_yaxis();
         plots.pcolor(sess.run(A_inputImportance_avg).reshape(7,26), cmap=cm.gray)
 

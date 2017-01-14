@@ -71,10 +71,10 @@ def main(argv=None):
     w_hidden = init_weights('w_hidden', [num_features, num_labels], 'uniform')
     b_hidden = init_weights('b_hidden', [1, num_labels], 'zeros')
 
-    # The hidden layer.
+    # The hidden layer with linear activation
     hidden = tf.matmul(x, w_hidden) + b_hidden;
 
-    # The output layer.
+    # The classification layer
     y = tf.nn.softmax(hidden);
 
     # Optimization.

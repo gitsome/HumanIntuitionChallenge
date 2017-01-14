@@ -60,7 +60,6 @@ def main(argv=None):
 
     # Get the size of layer one.
     hidden_layer_size_1 = num_features
-    hidden_layer_size_2 = num_features
 
     # For the test data, hold the entire dataset in one constant node.
     data_node = tf.constant(data)
@@ -81,26 +80,23 @@ def main(argv=None):
     layer_1 = tf.nn.relu(layer_1)
 
     # Hidden layer with RELU activation
-    layer_2_weights = init_weights('layer_2_weights', [hidden_layer_size_1, hidden_layer_size_2], 'uniform')
-    layer_2_biases = init_weights('layer_2_biases', [1, hidden_layer_size_2], 'zeros')
-    layer_2 = tf.add(tf.matmul(layer_1, layer_2_weights), layer_2_biases)
-    layer_2 = tf.nn.relu(layer_2)
-
-    # Output layer with linear activation
-    pred_weights = init_weights('pred_weights', [hidden_layer_size_2, num_labels], 'uniform')
-    pred_biases = init_weights('pred_biases', [1, num_labels], 'zeros')
-    pred = tf.add(tf.matmul(layer_2, pred_weights), pred_biases)
+    layer_2_weights = init_weights('layer_2_weights', [hidden_layer_size_1, num_labels], 'uniform')
+    layer_2_biases = init_weights('layer_2_biases', [1, num_labels], 'zeros')
+    layer_2_output = tf.add(tf.matmul(layer_1, layer_2_weights), layer_2_biases)
 
 
-    # ============ Define loss and optimizer
+    # ============ LOSS AND OPTIMIZATION
 
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(layer_2_output, y))
     optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(cost)
 
     # Test model
-    correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
+    correct_prediction = tf.equal(tf.argmax(layer_2_output, 1), tf.argmax(y, 1))
     # Calculate accuracy
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
+
+    # ============ SUMMARIES AND METRICS =============
 
     # summary
     tf.summary.scalar('accurarcy', accuracy)
@@ -108,10 +104,8 @@ def main(argv=None):
 
     # Input Importance Measurement -> Scheme A
     A_outputFilterMatrix = tf.constant([[1.0, 0.0]])
-    A_predImportance = tf.matmul(A_outputFilterMatrix, tf.transpose(pred_weights))
-    A_predImportance_avg = tf.scalar_mul(1 / tf.reduce_sum(A_predImportance), A_predImportance)
 
-    A_layer2Importance = tf.matmul(A_predImportance_avg, tf.transpose(layer_2_weights))
+    A_layer2Importance = tf.matmul(A_outputFilterMatrix, tf.transpose(layer_2_weights))
     A_layer2Importance_avg = tf.scalar_mul(1 / tf.reduce_sum(A_layer2Importance), A_layer2Importance)
 
     A_inputImportance = tf.matmul(A_layer2Importance_avg, tf.transpose(layer_1_weights))
@@ -149,7 +143,7 @@ def main(argv=None):
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5, top=0.85)
 
-        plots.set_title("Two Hidden Layers : Scheme A -> Input Importance", y=1.06)
+        plots.set_title("Two Hidden Layers : Scheme C -> Input Importance", y=1.06)
         plots.invert_yaxis();
         plots.pcolor(sess.run(A_inputImportance_avg).reshape(7,26), cmap=cm.gray)
 

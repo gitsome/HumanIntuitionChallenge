@@ -74,19 +74,23 @@ def main(argv=None):
     output_biases = init_weights('output_biases', [1, num_labels], 'zeros')
 
 
-    # =========== MULTI LAYER CHANNEL 1 (2 hidden layers with Relu activation) ============
+    # =========== MULTI LAYER CHANNEL 1 (3 hidden layers with Relu activations) ============
 
     c1_layer1_size = num_features
+    c1_layer2_size = num_features
+    c1_layer3_size = num_features
 
     # Channel 1 Hidden layer 1 with RELU activation
     c1_layer1_weights = init_weights('c1_layer1_weights', [num_features, c1_layer1_size], 'uniform')
     c1_layer1_biases = init_weights('c1_layer1_biases', [1, c1_layer1_size], 'zeros')
+
     c1_layer1 = tf.add(tf.matmul(x, c1_layer1_weights), c1_layer1_biases)
     c1_layer1 = tf.nn.relu(c1_layer1)
 
-    # Channel 1 Hidden layer 2 with linear activation
+    # Channel 1 Hidden layer 2 with RELU activation
     c1_layer2_weights = init_weights('c1_layer2_weights', [c1_layer1_size, num_labels], 'uniform')
     c1_layer2_biases = output_biases
+
     c1_layer2 = tf.add(tf.matmul(c1_layer1, c1_layer2_weights), c1_layer2_biases)
     c1_output = tf.nn.relu(c1_layer2)
 
@@ -94,17 +98,16 @@ def main(argv=None):
     # =========== MULTI LAYER CHANNEL 2 (single hidden layer with linear activaiton) ============
 
     c2_layer1_weights = init_weights('c2_layer1_weights', [num_features, num_labels], 'uniform')
+
     c2_output = tf.add(tf.matmul(x, c2_layer1_weights), output_biases);
 
 
     # =========== MERGE MULTIPLE TRACKS ============
 
-    # The classification layer
     hidden_combined = tf.add(c1_output, c2_output)
+
+    # The output layer.
     y = tf.nn.softmax(hidden_combined);
-
-
-    # ============ LOSS AND OPTIMIZATION
 
     # Optimization.
     cross_entropy = -tf.reduce_sum(y_*tf.log(y))
@@ -115,7 +118,7 @@ def main(argv=None):
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
 
-    # ============ SUMMARIES AND METRICS =============
+    # =========== INITIALIZATION SETUP ============
 
     # Summary
     tf.summary.scalar('accurarcy', accuracy)
@@ -125,7 +128,10 @@ def main(argv=None):
     A_outputFilterMatrix = tf.constant([[1.0, 0.0]])
 
     # Channel 1
-    A_inputImportanceC1_layer2 = tf.matmul(A_outputFilterMatrix, tf.transpose(c1_layer2_weights))
+    A_inputImportanceC1_layer3 = tf.matmul(A_outputFilterMatrix, tf.transpose(c1_layer3_weights))
+    A_inputImportanceC1_layer3_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC1_layer3), A_inputImportanceC1_layer3)
+
+    A_inputImportanceC1_layer2 = tf.matmul(A_inputImportanceC1_layer3_avg, tf.transpose(c1_layer2_weights))
     A_inputImportanceC1_layer2_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC1_layer2), A_inputImportanceC1_layer2)
 
     A_inputImportanceC1 = tf.matmul(A_inputImportanceC1_layer2_avg, tf.transpose(c1_layer1_weights))
