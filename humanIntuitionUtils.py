@@ -9,7 +9,7 @@ graphHelpers = {
     "yLabels": [1,2,3,4,5,6,7]
 }
 
-# Extract numpy representations of the labels and features
+# Extract numpy representations of the labels and features for this experiment
 def extract_data(filename, PERCENT_TESTING):
 
     trainLabels = []
@@ -54,8 +54,7 @@ def extract_data(filename, PERCENT_TESTING):
     # Return a pair of the feature matrix and the one-hot label matrix.
     return trainVecs_np, trainLabels_onehot, testVecs_np, testLabels_onehot, labels_map
 
-
-"""Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+# Attach a lot of summaries to a Tensor (for TensorBoard visualization).
 def variable_summaries(var, name):
 
     with tf.name_scope(name):
@@ -70,19 +69,6 @@ def variable_summaries(var, name):
         tf.summary.scalar('max', tf.reduce_max(var))
         tf.summary.scalar('min', tf.reduce_min(var))
         tf.summary.histogram('histogram', var)
-
-
-# Create model
-def multilayer_perceptron(x, weights, biases):
-    # Hidden layer with RELU activation
-    layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
-    layer_1 = tf.nn.relu(layer_1)
-    # Hidden layer with RELU activation
-    layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
-    layer_2 = tf.nn.relu(layer_2)
-    # Output layer with linear activation
-    out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
-    return out_layer
 
 
 # Init weights method. (Lifted from Delip Rao: http://deliprao.com/archives/100)

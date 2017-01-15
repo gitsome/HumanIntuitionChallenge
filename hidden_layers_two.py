@@ -15,12 +15,6 @@ from humanIntuitionUtils import extract_data
 from humanIntuitionUtils import variable_summaries
 from humanIntuitionUtils import init_weights
 
-# Original from https://github.com/jasonbaldridge/try-tf/
-
-# set seed if required
-# random.seed(15)
-# tf.set_random_seed(15)
-
 # Global variables.
 BATCH_SIZE = 1  # The number of training examples to use per training step.
 PERCENT_TRAINING = 0.5;

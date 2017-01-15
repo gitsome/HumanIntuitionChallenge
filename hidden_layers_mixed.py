@@ -13,13 +13,6 @@ from humanIntuitionUtils import graphHelpers
 from humanIntuitionUtils import extract_data
 from humanIntuitionUtils import variable_summaries
 from humanIntuitionUtils import init_weights
-from humanIntuitionUtils import multilayer_perceptron
-
-# Original from https://github.com/jasonbaldridge/try-tf/
-
-# SET SEEDS IF NEEDED FOR TESTING
-# random.seed(15)
-# tf.set_random_seed(15)
 
 # GLOBAL VARIABLES
 BATCH_SIZE = 1  # The number of training examples to use per training step. We use 1 to simulate an individual updating their personal neural networks one example at a time

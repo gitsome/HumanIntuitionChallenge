@@ -14,16 +14,11 @@ from humanIntuitionUtils import extract_data
 from humanIntuitionUtils import variable_summaries
 from humanIntuitionUtils import init_weights
 
-# Original from https://github.com/jasonbaldridge/try-tf/
-
-# set seed if required
-# random.seed(15)
-# tf.set_random_seed(15)
-
 # Global variables.
 BATCH_SIZE = 1  # The number of training examples to use per training step. We use 1 to simulate an individual updating their personal neural networks one example at a time
 PERCENT_TESTING = 0.5;
 RUN_INTEGER = random.randint(0,9999999)
+LEARNING_RATE = 0.03
 
 # Define the flags useable from the command line.
 tf.app.flags.DEFINE_string('data','./server/exports/mlData.json', 'File containing the data, labels, features.')
@@ -79,7 +74,7 @@ def main(argv=None):
 
     # Optimization.
     cross_entropy = -tf.reduce_sum(y_*tf.log(y))
-    train_step = tf.train.GradientDescentOptimizer(0.03).minimize(cross_entropy)
+    train_step = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(cross_entropy)
 
     # Evaluation.
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
