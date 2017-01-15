@@ -131,7 +131,7 @@ def main(argv=None):
         if not os.path.exists('images'):
             os.makedirs('images')
 
-        fig.savefig('images/weights.png')
+        fig.savefig('images/weights_layers_one.png')
 
         print "Train Accuracy:", accuracy.eval(feed_dict={x: data, y_: labels})
         print "Test Accuracy:", accuracy.eval(feed_dict={x: testData, y_: testLabels})

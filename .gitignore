@@ -2,3 +2,4 @@
 logs/
 images/
 server/exports/mlData.json
+server/exports/schemes.json
