@@ -79,7 +79,7 @@ def main(argv=None):
     layer_1 = tf.add(tf.matmul(x, layer_1_weights), layer_1_biases)
     layer_1 = tf.nn.relu(layer_1)
 
-    # Hidden layer with RELU activation
+    # Hidden layer with linear activation
     layer_2_weights = init_weights('layer_2_weights', [hidden_layer_size_1, num_labels], 'uniform')
     layer_2_biases = init_weights('layer_2_biases', [1, num_labels], 'zeros')
     layer_2_output = tf.add(tf.matmul(layer_1, layer_2_weights), layer_2_biases)
@@ -143,7 +143,7 @@ def main(argv=None):
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5, top=0.85)
 
-        plots.set_title("Two Hidden Layers : Scheme C -> Input Importance", y=1.06)
+        plots.set_title("Two Hidden Layers : Scheme A -> Input Importance", y=1.06)
         plots.invert_yaxis();
         plots.pcolor(sess.run(A_inputImportance_avg).reshape(7,26), cmap=cm.gray)
 

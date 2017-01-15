@@ -133,7 +133,6 @@ def main(argv=None):
 
     # Channel 2
     A_inputImportanceC2 = tf.matmul(A_outputFilterMatrix, tf.transpose(c2_layer1_weights))
-    A_inputImportanceC2_avg = tf.scalar_mul(1 / tf.reduce_sum(A_inputImportanceC2), A_inputImportanceC2)
 
 
     # =========== RUN THE SESSION ============
@@ -167,13 +166,13 @@ def main(argv=None):
         matplotlib.setp(plots, xticks=graphHelpers['xTicks'], xticklabels=graphHelpers['xLabels'], yticks=graphHelpers['yTicks'], yticklabels=graphHelpers['yLabels'])
         matplotlib.subplots_adjust(hspace=0.5)
 
-        plots[0].set_title("Multi Channel NN : Scheme A -> Input Importance Channel 1", y=1.06)
+        plots[0].set_title("Multi Track NN : Scheme A -> Input Importance Track 1", y=1.06)
         plots[0].invert_yaxis();
         plots[0].pcolor(sess.run(A_inputImportanceC1_avg).reshape(7,26), cmap=cm.gray)
 
-        plots[1].set_title("Multi Channel NN : Scheme A -> Input Importance Channel 2", y=1.06)
+        plots[1].set_title("Multi Track NN : Scheme A -> Input Importance Track 2", y=1.06)
         plots[1].invert_yaxis();
-        plots[1].pcolor(sess.run(A_inputImportanceC2_avg).reshape(7,26), cmap=cm.gray)
+        plots[1].pcolor(sess.run(A_inputImportanceC2).reshape(7,26))
 
 
         if not os.path.exists('images'):

@@ -1,3 +1,4 @@
 .DS_Store
 logs/
 images/
+server/exports/mlData.json
