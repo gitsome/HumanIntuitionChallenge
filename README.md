@@ -3,7 +3,7 @@ Webapp to deliver human intuition challenge as well as collect data that can be 
 
 You can view the current article that discuss this challenge here:
 
-[More Intuitive than Most? Want to Challenge my Machine?](https://medium.com/p/82c3faed97da)
+[Are you Intuitive? Want to Challenge my Machine?](https://medium.com/p/82c3faed97da)
 
 You can view a discussion about the creation and training of the neural network code here:
 
@@ -28,7 +28,7 @@ npm install
 node app
 ```
 
-Navigate to: http://localhost:3000/
+Navigate to: http://localhost:3001/
 
 
 ### Switch View Modes in Webapp
@@ -109,7 +109,7 @@ python hidden_layers_two.py
 
 ### Combined Single Hidden Layer and Two Hidden Layers (mixed)
 
-This neural network was built to try to take advantage of all possible rules that can be used to generate strings. I found this one to work the best so far. The inputs get sent into two different channels, one a single hidden layer with no activation function and one channel that has two hidden layers with Relu. The outputs from those channels are merged into one more hidden layer with no activation function.
+This neural network was built to try to take advantage of all possible rules that can be used to generate strings. I found this one to work the best so far. The inputs get sent into two different channels, one a single hidden layer with no activation function and one channel that has two hidden layers with Relu. The outputs from those channels are merged via addition.
 
 ```bash
 python hidden_layers_mixed.py
