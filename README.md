@@ -1,4 +1,4 @@
-#Human Intuition Challenge
+# Human Intuition Challenge
 Webapp to deliver human intuition challenge as well as collect data that can be used to train a neural network
 
 You can view the current article that discuss this challenge here:
